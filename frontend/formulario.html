@@ -270,7 +270,7 @@ document.getElementById('cadastroForm').addEventListener('submit', async (e) => 
     };
 
     try {
-        const response = await fetch('http://localhost:3000/api/candidatos/create', {
+        const response = await fetch('https://pss-montealegre.onrender.com/api/candidatos/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData),
