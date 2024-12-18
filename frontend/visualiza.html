@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Inscrição - Processo Seletivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-section h3 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .info-row span {
+            font-weight: bold;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #28a745;
+        }
+
+        .btn-secondary:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Visualização da Inscrição</h1>
+        <p id="mensagem" style="color: red;"></p>
+
+        <!-- Dados do Candidato -->
+        <div class="info-section">
+            <h3>Dados do Candidato</h3>
+            <div id="candidato-info"></div>
+        </div>
+
+        <!-- Dados da Inscrição -->
+        <div class="info-section">
+            <h3>Dados da Inscrição</h3>
+            <div id="inscricao-info"></div>
+        </div>
+
+        <!-- Formações -->
+        <div class="info-section">
+            <h3>Formações</h3>
+            <ul id="formacoes-list"></ul>
+        </div>
+
+        <!-- Cursos de Capacitação -->
+        <div class="info-section">
+            <h3>Cursos de Capacitação</h3>
+            <ul id="cursos-list"></ul>
+        </div>
+
+        <!-- Botões -->
+        <button id="imprimir-btn">Imprimir Comprovante</button>
+        <button id="nova-inscricao-btn" class="btn-secondary">Realizar Nova Inscrição</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cpf = urlParams.get('cpf'); // Captura o CPF da URL
+
+            if (!cpf) {
+                document.getElementById('mensagem').textContent = 'Erro: CPF não encontrado.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/inscricoes/${cpf}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    document.getElementById('mensagem').textContent = `Erro: ${data.message}`;
+                    return;
+                }
+
+                // Exibe os dados do candidato
+                const candidatoInfo = `
+                    <div class="info-row"><span>Nome:</span> ${data[0]?.Candidato?.nome || 'N/A'}</div>
+                    <div class="info-row"><span>CPF:</span> ${cpf}</div>
+                `;
+                document.getElementById('candidato-info').innerHTML = candidatoInfo;
+
+                // Exibe os dados da inscrição
+                const inscricaoInfo = `
+                    <div class="info-row"><span>Cargo:</span> ${data[0]?.Cargo?.nome || 'N/A'}</div>
+                    <div class="info-row"><span>Zona:</span> ${data[0]?.Cargo?.zona || 'N/A'}</div>
+                    <div class="info-row"><span>Tempo de Serviço:</span> ${data[0]?.tempo_servico || 'N/A'}</div>
+                `;
+                document.getElementById('inscricao-info').innerHTML = inscricaoInfo;
+
+                // Exibe as formações
+                const formacoesList = document.getElementById('formacoes-list');
+                data[0]?.Formacaos?.forEach(formacao => {
+                    const li = document.createElement('li');
+                    li.textContent = `${formacao.tipo} - Período: ${formacao.periodo}, Carga Horária: ${formacao.carga_horaria}`;
+                    formacoesList.appendChild(li);
+                });
+
+                // Exibe os cursos de capacitação
+                const cursosList = document.getElementById('cursos-list');
+                data[0]?.CursoCapacitacaos?.forEach(curso => {
+                    const li = document.createElement('li');
+                    li.textContent = `Período: ${curso.periodo}, Carga Horária: ${curso.carga_horaria}`;
+                    cursosList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Erro ao buscar os dados da inscrição:', error);
+                document.getElementById('mensagem').textContent = 'Erro ao carregar os dados da inscrição.';
+            }
+
+            // Imprimir Comprovante
+            document.getElementById('imprimir-btn').addEventListener('click', () => {
+                window.print();
+            });
+
+            // Realizar Nova Inscrição
+            document.getElementById('nova-inscricao-btn').addEventListener('click', () => {
+                window.location.href = `/inscricao.html?cpf=${cpf}`;
+            });
+        });
+    </script>
+</body>
+</html>

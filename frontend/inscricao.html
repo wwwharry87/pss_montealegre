@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscrição - Processo Seletivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .section-title {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .message {
+            margin-top: 10px;
+            font-size: 14px;
+            color: red;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Inscrição - Processo Seletivo</h1>
+
+        <!-- Selecione a Zona -->
+        <label for="zona">Selecione a Zona</label>
+        <select id="zona" required>
+            <option value="">Selecione</option>
+            <option value="URBANA">Urbana</option>
+            <option value="RURAL">Rural</option>
+        </select>
+
+        <!-- Selecionar Cargo -->
+        <label for="cargo">Selecione o Cargo</label>
+        <select id="cargo" required>
+            <option value="">Selecione uma zona primeiro</option>
+        </select>
+
+        <!-- Tempo de Serviço -->
+        <label for="tempo_servico">Tempo de Serviço (anos)</label>
+        <input type="number" id="tempo_servico" min="0" max="10" placeholder="Máximo de 10 anos">
+
+        <!-- Formação -->
+        <div class="section-title">Formação</div>
+        <div id="formacao-container"></div>
+        <button type="button" id="add-formacao">Adicionar Formação</button>
+
+        <!-- Cursos de Capacitação -->
+        <div class="section-title">Cursos de Capacitação</div>
+        <div id="curso-container"></div>
+        <button type="button" id="add-curso">Adicionar Curso</button>
+
+        <!-- Botão de Envio -->
+        <button id="enviar">Enviar Inscrição</button>
+        <div id="mensagem" class="message"></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cpf = urlParams.get('cpf'); // Captura o CPF da URL
+
+        const cargoSelect = document.getElementById('cargo');
+        const zonaSelect = document.getElementById('zona');
+        const mensagem = document.getElementById('mensagem');
+        const formacaoContainer = document.getElementById('formacao-container');
+        const cursoContainer = document.getElementById('curso-container');
+
+        let formacaoCount = 0;
+        let cursoCount = 0;
+
+        // Validar CPF
+        if (!cpf) {
+            alert('Erro: CPF não encontrado. Redirecionando para a página inicial.');
+            window.location.href = 'formulario.html';
+            return;
+        }
+
+        console.log("CPF capturado:", cpf);
+
+        // Buscar cargos com base na zona
+        zonaSelect.addEventListener('change', async () => {
+            const zona = zonaSelect.value;
+
+            if (!zona) {
+                cargoSelect.innerHTML = '<option value="">Selecione uma zona primeiro</option>';
+                return;
+            }
+
+            try {
+                console.log(`Enviando requisição para: http://localhost:3000/api/cargos?zona=${zona}`);
+
+                const response = await fetch(`http://localhost:3000/api/cargos?zona=${zona}`);
+                if (!response.ok) {
+                    console.error('Resposta HTTP inválida:', response.status);
+                    throw new Error('Erro ao buscar cargos');
+                }
+
+                const cargos = await response.json();
+                console.log('Cargos recebidos:', cargos);
+
+                cargoSelect.innerHTML = '<option value="">Selecione um cargo</option>';
+                if (cargos.length === 0) {
+                    mensagem.textContent = 'Nenhum cargo encontrado para a zona selecionada.';
+                    return;
+                }
+
+                cargos.forEach(cargo => {
+                    const option = document.createElement('option');
+                    option.value = cargo.id;
+                    option.textContent = cargo.nome;
+                    cargoSelect.appendChild(option);
+                });
+                mensagem.textContent = ''; // Limpa mensagens anteriores
+            } catch (error) {
+                console.error('Erro ao buscar cargos:', error);
+                mensagem.textContent = 'Erro ao carregar os cargos.';
+            }
+        });
+
+        // Adicionar campos de formação
+        document.getElementById('add-formacao').addEventListener('click', () => {
+            if (formacaoCount >= 3) {
+                alert('Você só pode adicionar até 3 formações.');
+                return;
+            }
+
+            formacaoCount++;
+            const div = document.createElement('div');
+            div.classList.add('form-row');
+            div.innerHTML = `
+                <div class="form-group">
+                    <label>Tipo de Formação</label>
+                    <select>
+                        <option value="Especialização">Especialização</option>
+                        <option value="Mestrado">Mestrado</option>
+                        <option value="Doutorado">Doutorado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Período</label>
+                    <input type="text" placeholder="Ex: 2021-2023" required>
+                </div>
+                <div class="form-group">
+                    <label>Carga Horária</label>
+                    <input type="number" placeholder="Horas" required>
+                </div>
+            `;
+            formacaoContainer.appendChild(div);
+        });
+
+        // Adicionar campos de cursos de capacitação
+        document.getElementById('add-curso').addEventListener('click', () => {
+            if (cursoCount >= 10) {
+                alert('Você só pode adicionar até 10 cursos.');
+                return;
+            }
+
+            cursoCount++;
+            const div = document.createElement('div');
+            div.classList.add('form-row');
+            div.innerHTML = `
+                <div class="form-group">
+                    <label>Período</label>
+                    <input type="text" placeholder="Ex: 2021" required>
+                </div>
+                <div class="form-group">
+                    <label>Carga Horária</label>
+                    <input type="number" placeholder="Horas" required>
+                </div>
+            `;
+            cursoContainer.appendChild(div);
+        });
+
+        // Enviar inscrição
+        document.getElementById('enviar').addEventListener('click', async () => {
+            const zona = zonaSelect.value;
+            const cargo_id = cargoSelect.value;
+            const tempo_servico = document.getElementById('tempo_servico').value;
+
+            // Validar campos obrigatórios
+            if (!zona || !cargo_id) {
+                alert('Preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            // Coletar dados de formação
+            const formacoes = [...formacaoContainer.querySelectorAll('.form-row')].map(row => ({
+                tipo: row.querySelector('select').value,
+                periodo: row.querySelectorAll('input')[0].value,
+                carga_horaria: row.querySelectorAll('input')[1].value
+            }));
+
+            // Coletar dados de cursos de capacitação
+            const cursos_capacitacao = [...cursoContainer.querySelectorAll('.form-row')].map(row => ({
+                periodo: row.querySelectorAll('input')[0].value,
+                carga_horaria: row.querySelectorAll('input')[1].value
+            }));
+
+            try {
+                const response = await fetch('http://localhost:3000/api/inscricoes/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cpf,
+                        cargo_id,
+                        tempo_servico,
+                        formacoes,
+                        cursos_capacitacao
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Inscrição realizada com sucesso!');
+                    window.location.href = `visualiza.html?cpf=${cpf}`;
+                } else {
+                    alert(`Erro: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Erro ao enviar inscrição:', error);
+                alert('Erro ao enviar a inscrição.');
+            }
+        });
+    });
+</script>      
+</body>
+</html>
