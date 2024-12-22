@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscrição - Processo Seletivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+            color: #34495e;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ced6e0;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .section-title {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #3498db;
+            padding: 0;
+        }
+
+        .section-title button:hover {
+            color: #1d6fa5;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .remove-button {
+            color: #e74c3c;
+        }
+
+        .remove-button:hover {
+            color: #c0392b;
+        }
+
+        button#enviar {
+            background-color: #2ecc71;
+            color: white;
+            font-size: 16px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+        }
+
+        button#enviar:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Inscrição - Processo Seletivo</h1>
+
+        <!-- Selecione a Zona -->
+        <label for="zona">Selecione a Zona</label>
+        <select id="zona" required>
+            <option value="">Selecione</option>
+            <option value="URBANA">Urbana</option>
+            <option value="RURAL">Rural</option>
+        </select>
+
+        <!-- Selecionar Cargo -->
+        <label for="cargo">Selecione o Cargo</label>
+        <select id="cargo" required>
+            <option value="">Selecione uma zona primeiro</option>
+        </select>
+
+        <!-- Tempo de Serviço -->
+        <label for="tempo_servico">Tempo de Serviço (Anos - Máximo 10)</label>
+        <input type="number" id="tempo_servico" max="10" min="0" placeholder="Digite o tempo de serviço em anos">
+
+        <!-- Formação -->
+        <div class="section-title">
+            Formação
+            <button class="icon-button" id="add-especializacao">+</button>
+        </div>
+
+        <!-- Especialização -->
+        <div class="section-title">Especialização (Máximo 3)
+        </div>
+        <div id="especializacao-container"></div>
+
+        <!-- Mestrado -->
+        <div class="section-title">Mestrado (Máximo 1)
+            <button class="icon-button" id="add-mestrado">+</button>
+        </div>
+        <div id="mestrado-container"></div>
+
+        <!-- Doutorado -->
+        <div class="section-title">Doutorado (Máximo 1)
+            <button class="icon-button" id="add-doutorado">+</button>
+        </div>
+        <div id="doutorado-container"></div>
+
+        <!-- Cursos de Capacitação -->
+        <div class="section-title">Cursos de Capacitação Profissional (Mínimo 40 Horas)
+            <button class="icon-button" id="add-curso">+</button>
+        </div>
+        <div id="curso-container"></div>
+
+        <!-- Botão de Envio -->
+        <button id="enviar">Enviar Inscrição</button>
+        <div id="mensagem" class="message"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const cpf = new URLSearchParams(window.location.search).get('cpf');
+            const zonaSelect = document.getElementById('zona');
+            const cargoSelect = document.getElementById('cargo');
+            const especializacaoContainer = document.getElementById('especializacao-container');
+            const mestradoContainer = document.getElementById('mestrado-container');
+            const doutoradoContainer = document.getElementById('doutorado-container');
+            const cursoContainer = document.getElementById('curso-container');
+            const tempoServicoInput = document.getElementById('tempo_servico');
+
+            // Atualizar lista de cargos com base na zona selecionada
+            zonaSelect.addEventListener('change', async () => {
+                const zona = zonaSelect.value;
+                cargoSelect.innerHTML = '<option value="">Carregando...</option>';
+                try {
+                    const response = await fetch(`http://localhost:3000/api/cargos?zona=${zona}`);
+                    const cargos = await response.json();
+                    cargoSelect.innerHTML = '<option value="">Selecione um cargo</option>';
+                    cargos.forEach(cargo => {
+                        const option = document.createElement('option');
+                        option.value = cargo.id;
+                        option.textContent = cargo.nome;
+                        cargoSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    cargoSelect.innerHTML = '<option value="">Erro ao carregar cargos</option>';
+                }
+            });
+
+            function createField(container, maxCount, countVar, type) {
+                if (countVar >= maxCount) {
+                    alert(`Você só pode adicionar até ${maxCount} ${type}(s).`);
+                    return countVar;
+                }
+
+                const div = document.createElement('div');
+                div.classList.add('form-row');
+                div.innerHTML = `
+                    <div class="form-group">
+                        <label>Instituição</label>
+                        <input type="text" placeholder="Nome da Instituição">
+                    </div>
+                    <div class="form-group">
+                        <label>Curso</label>
+                        <input type="text" placeholder="Nome do Curso">
+                    </div>
+                    <div class="form-group">
+                        <label>Período de Conclusão</label>
+                        <input type="text" placeholder="MM/AAAA">
+                    </div>
+                    <div class="form-group">
+                        <label>CH</label>
+                        <input type="number" placeholder="Carga Horária">
+                    </div>
+                    <button class="icon-button remove-button">-</button>
+                `;
+
+                container.appendChild(div);
+
+                div.querySelector('.remove-button').addEventListener('click', () => {
+                    container.removeChild(div);
+                    countVar--;
+                });
+
+                return countVar + 1;
+            }
+
+            let especializacaoCount = 0;
+            let mestradoCount = 0;
+            let doutoradoCount = 0;
+
+            document.getElementById('add-especializacao').addEventListener('click', () => {
+                especializacaoCount = createField(especializacaoContainer, 3, especializacaoCount, 'Especialização');
+            });
+
+            document.getElementById('add-mestrado').addEventListener('click', () => {
+                mestradoCount = createField(mestradoContainer, 1, mestradoCount, 'Mestrado');
+            });
+
+            document.getElementById('add-doutorado').addEventListener('click', () => {
+                doutoradoCount = createField(doutoradoContainer, 1, doutoradoCount, 'Doutorado');
+            });
+
+            document.getElementById('add-curso').addEventListener('click', () => {
+                createField(cursoContainer, 10, cursoContainer.childElementCount, 'Curso de Capacitação');
+            });
+
+            // Enviar inscrição
+            document.getElementById('enviar').addEventListener('click', async () => {
+                const payload = {
+                    cpf,
+                    cargo_id: cargoSelect.value,
+                    tempo_servico: parseInt(tempoServicoInput.value, 10),
+                    formacoes: [
+                        ...especializacaoContainer.querySelectorAll('.form-row')
+                    ].map(row => ({
+                        tipo: 'Especialização',
+                        instituicao: row.querySelector('input[placeholder="Nome da Instituição"]').value,
+                        curso: row.querySelector('input[placeholder="Nome do Curso"]').value,
+                        periodo: row.querySelector('input[placeholder="MM/AAAA"]').value,
+                        carga_horaria: parseInt(row.querySelector('input[placeholder="Carga Horária"]').value, 10),
+                    })).concat(
+                        [...mestradoContainer.querySelectorAll('.form-row')].map(row => ({
+                            tipo: 'Mestrado',
+                            instituicao: row.querySelector('input[placeholder="Nome da Instituição"]').value,
+                            curso: row.querySelector('input[placeholder="Nome do Curso"]').value,
+                            periodo: row.querySelector('input[placeholder="MM/AAAA"]').value,
+                            carga_horaria: parseInt(row.querySelector('input[placeholder="Carga Horária"]').value, 10),
+                        }))
+                    ).concat(
+                        [...doutoradoContainer.querySelectorAll('.form-row')].map(row => ({
+                            tipo: 'Doutorado',
+                            instituicao: row.querySelector('input[placeholder="Nome da Instituição"]').value,
+                            curso: row.querySelector('input[placeholder="Nome do Curso"]').value,
+                            periodo: row.querySelector('input[placeholder="MM/AAAA"]').value,
+                            carga_horaria: parseInt(row.querySelector('input[placeholder="Carga Horária"]').value, 10),
+                        }))
+                    ),
+                    cursos_capacitacao: [
+                        ...cursoContainer.querySelectorAll('.form-row')
+                    ].map(row => ({
+                        instituicao: row.querySelector('input[placeholder="Nome da Instituição"]').value,
+                        curso: row.querySelector('input[placeholder="Nome do Curso"]').value,
+                        periodo: row.querySelector('input[placeholder="MM/AAAA"]').value,
+                        carga_horaria: parseInt(row.querySelector('input[placeholder="Carga Horária"]').value, 10),
+                    })),
+                };
+
+                console.log('Payload enviado ao servidor:', payload);
+
+                try {
+                    const response = await fetch('http://localhost:3000/api/inscricoes/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('Inscrição realizada com sucesso!');
+                        window.location.href = `visualiza.html?cpf=${cpf}`;
+                    } else {
+                        alert(`Erro: ${result.message}`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

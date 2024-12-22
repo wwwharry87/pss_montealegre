@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processo Seletivo Simplificado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #0056b3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .header img {
+            height: 50px;
+        }
+
+        .menu {
+            display: flex;
+            gap: 15px;
+        }
+
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .info {
+            background: #e9f7fa;
+            border-left: 5px solid #007bff;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .form-box {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .form-box h2 {
+            margin-top: 0;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .form-box label {
+            font-size: 14px;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .form-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-box button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .form-box button:hover {
+            background-color: #218838;
+        }
+
+        .login-box button {
+            background-color: #007bff;
+        }
+
+        .login-box button:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .message {
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .message.error {
+            color: red;
+        }
+
+        .message.success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="brasao.png" alt="Brasão" />
+            <h1>Processo Seletivo da Secretaria Municipal de Educação de Monte Alegre-PA</h1>
+        </div>
+        <div class="menu">
+            <a href="#">Acesso ao Sistema</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="info">
+            <p>Para realizar seu cadastro, informe seu CPF e leia com atenção as informações disponíveis no <strong>edital</strong> do Processo Seletivo Simplificado.</p>
+        </div>
+        <div class="form-container">
+            <!-- Cadastro -->
+            <div class="form-box">
+                <h2>Realize seu cadastro</h2>
+                <label for="cpfCadastro">CPF</label>
+                <input type="text" id="cpfCadastro" name="cpfCadastro" placeholder="000.000.000-00" maxlength="14">
+                <button id="cadastrarBtn">✔ Cadastre-se</button>
+                <div id="mensagemCadastro" class="message"></div>
+            </div>
+
+            <!-- Login -->
+            <div class="form-box login-box">
+                <h2>Acompanhe seu cadastro</h2>
+                <label for="cpfLogin">CPF</label>
+                <input type="text" id="cpfLogin" name="cpfLogin" placeholder="000.000.000-00" maxlength="14">
+                <label for="senhaLogin">Senha</label>
+                <input type="password" id="senhaLogin" name="senhaLogin" placeholder="Digite sua senha">
+                <button id="entrarBtn">✔ Entrar</button>
+                <div id="mensagemLogin" class="message"></div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+
+    </div>
+
+    <script>
+        // Máscara para CPF
+        document.querySelectorAll('#cpfCadastro, #cpfLogin').forEach(input => {
+            input.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 11) value = value.slice(0, 11);
+                e.target.value = value
+                    .replace(/(\d{3})(\d)/, '$1.$2')
+                    .replace(/(\d{3})(\d)/, '$1.$2')
+                    .replace(/(\d{3})(\d{2})$/, '$1-$2');
+            });
+        });
+
+        // Botão Cadastro
+        document.getElementById('cadastrarBtn').addEventListener('click', async () => {
+            const cpf = document.getElementById('cpfCadastro').value.replace(/\D/g, '');
+            const mensagem = document.getElementById('mensagemCadastro');
+
+            if (cpf.length !== 11 || !validarCPF(cpf)) {
+                mensagem.textContent = 'CPF inválido! Por favor, corrija.';
+                mensagem.className = 'message error';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/candidatos/check-cpf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cpf }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && !data.exists) {
+                    mensagem.textContent = 'CPF válido. Abrindo formulário de cadastro...';
+                    mensagem.className = 'message success';
+
+                    setTimeout(() => {
+                        window.location.href = `/formulario.html?cpf=${cpf}`;
+                    }, 2000);
+                } else {
+                    mensagem.textContent = data.message || 'CPF já cadastrado.';
+                    mensagem.className = 'message error';
+                }
+            } catch (error) {
+                mensagem.textContent = 'Erro ao conectar ao servidor. Tente novamente mais tarde.';
+                mensagem.className = 'message error';
+            }
+        });
+
+        // Botão Login
+        document.getElementById("entrarBtn").addEventListener("click", async () => {
+    const cpf = document.getElementById("cpfLogin").value.replace(/\D/g, "");
+    const senha = document.getElementById("senhaLogin").value;
+    const mensagem = document.getElementById("mensagemLogin");
+
+    if (cpf.length !== 11 || !senha) {
+        mensagem.textContent = "Preencha todos os campos corretamente.";
+        mensagem.className = "message error";
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:3000/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cpf, senha }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            mensagem.textContent = "Login realizado com sucesso!";
+            mensagem.className = "message success";
+
+            // Redirect to visualiza.html with CPF as a query parameter
+            setTimeout(() => {
+                window.location.href = `/visualiza.html?cpf=${cpf}`;
+            }, 1000);
+        } else {
+            mensagem.textContent = data.message || "Erro ao fazer login.";
+            mensagem.className = "message error";
+        }
+    } catch (error) {
+        mensagem.textContent = "Erro ao conectar ao servidor.";
+        mensagem.className = "message error";
+        console.error("Erro ao fazer login:", error);
+    }
+});
+
+        // Validação de CPF
+        function validarCPF(cpf) {
+            if (!cpf || cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+            let soma = 0, resto;
+            for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf[9])) return false;
+            soma = 0;
+            for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            return resto === parseInt(cpf[10]);
+        }
+    </script>
+</body>
+</html>
