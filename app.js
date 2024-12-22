@@ -16,7 +16,7 @@ app.use(session({
     secret: "7fc42988d468af3126e3085711f83e26dce596318ffd63c8eb1dc20908bcc68660cc88966837ecb5bef4ea4d78d49de0cec57f51578f6ce452938c80b53b5238", // Chave secreta
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Use true se HTTPS
+    cookie: { secure: true } // Use true se HTTPS
 }));
 
 // Função de autenticação (middleware)
