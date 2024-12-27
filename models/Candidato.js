@@ -76,6 +76,15 @@ Candidato.init(
             type: DataTypes.STRING,
             allowNull: false, // Definido como obrigatório
         },
+        pcd: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'nao', // Valor padrão
+        },
+        cid: {
+            type: DataTypes.STRING,
+            allowNull: true, // Pode ser nulo se PcD for 'nao'
+        },        
     },
     {
         sequelize,

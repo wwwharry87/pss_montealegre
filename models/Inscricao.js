@@ -22,12 +22,20 @@ Inscricao.init(
             type: DataTypes.INTEGER,
             defaultValue: 0,
         },
+        createdAt: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+        },
+        updatedAt: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+        },
     },
     {
         sequelize,
-        modelName: "inscricao",
-        tableName: "inscricoes", // Nome correto da tabela em minúsculas
-        freezeTableName: true, // Evita pluralização automática
+        modelName: "Inscricao",
+        tableName: "inscricoes",
+        freezeTableName: true,
     }
 );
 

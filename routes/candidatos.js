@@ -48,6 +48,8 @@ router.post("/create", async (req, res) => {
         estado,
         municipio,
         senha,
+        pcd,
+        cid,
     } = req.body;
 
     // Validação simples para campos obrigatórios
@@ -83,6 +85,8 @@ router.post("/create", async (req, res) => {
             estado,
             municipio,
             senha: senhaCriptografada,
+            pcd,
+            cid,
         });
 
         res.status(201).json({ message: "Candidato cadastrado com sucesso!", candidato: novoCandidato });

@@ -137,7 +137,20 @@
                     <input type="date" id="dataNascimento" name="dataNascimento" required>
                 </div>
             </div>
-
+            <!-- PcD-->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="pcd">É Pessoa com Deficiência (PcD)? <span class="required">*</span></label>
+                    <select id="pcd" name="pcd" required>
+                        <option value="nao" selected>Não</option>
+                        <option value="sim">Sim</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cid">CID (se aplicável)</label>
+                    <input type="text" id="cid" name="cid" placeholder="Informe o CID" disabled>
+                </div>
+            </div>
             <!-- Sexo e Email -->
             <div class="form-row">
                 <div class="form-group">
@@ -271,6 +284,16 @@
             document.getElementById('estado').value = '';
             document.getElementById('municipio').value = '';
         }
+            // Habilitar/desabilitar o campo CID baseado na escolha PcD
+            document.getElementById('pcd').addEventListener('change', (event) => {
+            const cidInput = document.getElementById('cid');
+            if (event.target.value === 'sim') {
+                cidInput.disabled = false;
+            } else {
+                cidInput.disabled = true;
+                cidInput.value = '';
+            }
+        });
 
         // Validação de senha e confirmação antes do envio
         document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
@@ -306,10 +329,12 @@
                 estado: document.getElementById('estado').value,
                 municipio: document.getElementById('municipio').value,
                 senha: senha,
+                pcd: document.getElementById('pcd').value,
+                cid: document.getElementById('cid').value,
             };
 
             try {
-                const response = await fetch('http://localhost:3000/api/candidatos/create', {
+                const response = await fetch('https://pss-montealegre.onrender.com/api/candidatos/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData),

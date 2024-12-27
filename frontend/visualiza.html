@@ -84,8 +84,8 @@
         }
 
         .info-row .field {
-            flex: 1;
-        }
+            flex-grow: 1;
+        } 
 
         .inscricoes-container {
             margin-top: 20px;
@@ -189,6 +189,10 @@
                     <span>CPF:</span>
                     <span id="candidato-cpf">N/A</span>
                 </div>
+                <div class="field">
+                    <span>PcD:</span>
+                    <span id="candidato-pcd">N/A</span>
+                </div>
             </div>
         </div>
 
@@ -225,6 +229,7 @@
                 // Exibe os dados do candidato
                 document.getElementById("candidato-nome").textContent = (data.candidato.nome || "N/A").toUpperCase();
                 document.getElementById("candidato-cpf").textContent = formatCPF(data.candidato.cpf);
+                document.getElementById("candidato-pcd").textContent = (data.candidato.pcd).toUpperCase();
 
                 // Atualiza o link do botão "Nova Inscrição"
                 document.getElementById("nova-inscricao-btn").href = `/inscricao.html?cpf=${data.candidato.cpf}`;

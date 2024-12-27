@@ -41,7 +41,7 @@ router.get("/:cpf", async (req, res) => {
 
         // Retornar os dados do candidato junto com suas inscrições
         res.status(200).json({
-            candidato: { nome: candidato.nome, cpf: candidato.cpf },
+            candidato: { nome: candidato.nome, cpf: candidato.cpf, pcd: candidato.pcd },
             inscricoes: inscricoesComNumeracao,
         });
     } catch (error) {

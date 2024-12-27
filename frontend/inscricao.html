@@ -185,7 +185,7 @@
                 const zona = zonaSelect.value;
                 cargoSelect.innerHTML = '<option value="">Carregando...</option>';
                 try {
-                    const response = await fetch(`http://localhost:3000/api/cargos?zona=${zona}`);
+                    const response = await fetch(`https://pss-montealegre.onrender.com/api/cargos?zona=${zona}`);
                     const cargos = await response.json();
                     cargoSelect.innerHTML = '<option value="">Selecione um cargo</option>';
                     cargos.forEach(cargo => {
@@ -266,7 +266,7 @@
                     formacoes: [
                         ...especializacaoContainer.querySelectorAll('.form-row')
                     ].map(row => ({
-                        tipo: 'Especialização',
+                        tipo: 'Especializacao',
                         instituicao: row.querySelector('input[placeholder="Nome da Instituição"]').value,
                         curso: row.querySelector('input[placeholder="Nome do Curso"]').value,
                         periodo: row.querySelector('input[placeholder="MM/AAAA"]').value,
@@ -301,7 +301,7 @@
                 console.log('Payload enviado ao servidor:', payload);
 
                 try {
-                    const response = await fetch('http://localhost:3000/api/inscricoes/create', {
+                    const response = await fetch('https://pss-montealegre.onrender.com/api/inscricoes/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload),

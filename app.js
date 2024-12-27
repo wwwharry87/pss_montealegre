@@ -5,8 +5,19 @@ const sequelize = require("./config/database");
 const session = require("express-session"); // Importa o módulo de sessão
 require("dotenv").config(); // Variáveis de ambiente
 
-// Carrega os modelos e as associações
-require("./models/associations");
+const { setupAssociations } = require('./models');
+
+// Configurando associações antes de sincronizar os modelos
+setupAssociations();
+
+sequelize
+    .authenticate()
+    .then(() => {
+        console.log("Conectado ao PostgreSQL!");
+        return sequelize.sync({ alter: true });
+    })
+    .then(() => console.log("Modelos sincronizados com sucesso!"))
+    .catch((err) => console.error("Erro ao conectar ou sincronizar os modelos:", err));
 
 // Middleware para parsing de JSON
 app.use(express.json());
@@ -16,7 +27,10 @@ app.use(session({
     secret: "7fc42988d468af3126e3085711f83e26dce596318ffd63c8eb1dc20908bcc68660cc88966837ecb5bef4ea4d78d49de0cec57f51578f6ce452938c80b53b5238", // Chave secreta
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true } // Use true se HTTPS
+    cookie: {
+        secure: true, // Use true se HTTPS
+        maxAge: 4 * 60 * 1000 // Expiração em 5 minutos
+    }
 }));
 
 // Função de autenticação (middleware)
@@ -56,30 +70,24 @@ app.get("/visualiza.html", autenticarRequisicao, (req, res) => {
     res.sendFile(path.join(__dirname, "frontend", "visualiza.html"));
 });
 
-// Conexão com o banco de dados e sincronização dos modelos
-sequelize
-    .authenticate()
-    .then(() => {
-        console.log("Conectado ao PostgreSQL!");
-        return sequelize.sync({ alter: true }); // Sincroniza os modelos com o banco sem recriar as tabelas
-    })
-    .then(() => console.log("Modelos sincronizados com sucesso!"))
-    .catch((err) =>
-        console.error("Erro ao conectar ou sincronizar os modelos:", err)
-    );
-
 // Rotas de API
 const candidatosRoutes = require("./routes/candidatos");
 const inscricoesRoutes = require("./routes/inscricoes");
 const cargosRoutes = require("./routes/cargos");
 const visualizaRouter = require("./routes/visualiza");
 const authRoutes = require("./routes/auth");
+const resultadosRoutes = require('./routes/resultados');
+const authAdminRoutes = require("./routes/auth"); // Ajuste o caminho
 
 app.use("/api/candidatos", candidatosRoutes); // Rotas relacionadas a candidatos
 app.use("/api/inscricoes", inscricoesRoutes); // Rotas relacionadas a inscrições
 app.use("/api/cargos", cargosRoutes); // Rotas relacionadas a cargos
 app.use("/api/visualiza", visualizaRouter); // Rotas de visualização
 app.use("/api/auth", authRoutes); // Rotas de autenticação
+app.use('/api/resultados', resultadosRoutes); // Rotas de resultados
+app.use("/api/auth-admin", authAdminRoutes);//rota do administrador
+
+
 
 // Porta do servidor
 const PORT = process.env.PORT || 3000;
