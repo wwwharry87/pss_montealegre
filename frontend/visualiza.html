@@ -214,7 +214,7 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:3000/api/visualiza/${cpf}`);
+                const response = await fetch(`https://pss-montealegre.onrender.com/api/visualiza/${cpf}`);
                 const data = await response.json();
 
                 if (!response.ok) {
