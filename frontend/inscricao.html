@@ -180,24 +180,28 @@
             const cursoContainer = document.getElementById('curso-container');
             const tempoServicoInput = document.getElementById('tempo_servico');
 
-            // Atualizar lista de cargos com base na zona selecionada
-            zonaSelect.addEventListener('change', async () => {
-                const zona = zonaSelect.value;
-                cargoSelect.innerHTML = '<option value="">Carregando...</option>';
-                try {
-                    const response = await fetch(`https://pss-montealegre.onrender.com/api/cargos?zona=${zona}`);
-                    const cargos = await response.json();
-                    cargoSelect.innerHTML = '<option value="">Selecione um cargo</option>';
-                    cargos.forEach(cargo => {
-                        const option = document.createElement('option');
-                        option.value = cargo.id;
-                        option.textContent = cargo.nome;
-                        cargoSelect.appendChild(option);
-                    });
-                } catch (error) {
-                    cargoSelect.innerHTML = '<option value="">Erro ao carregar cargos</option>';
+            tempoServicoInput.addEventListener('input', (e) => {
+                if (e.target.value > 10) {
+                    e.target.value = 10;
                 }
             });
+
+            function enforceUppercase(input) {
+                input.addEventListener('input', () => {
+                    input.value = input.value.toUpperCase();
+                });
+            }
+
+            function formatPeriod(input) {
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    if (value.length >= 3) {
+                        e.target.value = `${value.slice(0, 2)}/${value.slice(2)}`;
+                    } else {
+                        e.target.value = value;
+                    }
+                });
+            }
 
             function createField(container, maxCount, countVar, type) {
                 if (countVar >= maxCount) {
@@ -222,10 +226,19 @@
                     </div>
                     <div class="form-group">
                         <label>CH</label>
-                        <input type="number" placeholder="Carga Horária">
+                        <input type="number" placeholder="Carga Horária" step="1">
                     </div>
                     <button class="icon-button remove-button">-</button>
                 `;
+
+                const institutionInput = div.querySelector('input[placeholder="Nome da Instituição"]');
+                const courseInput = div.querySelector('input[placeholder="Nome do Curso"]');
+                const periodInput = div.querySelector('input[placeholder="MM/AAAA"]');
+                const chInput = div.querySelector('input[placeholder="Carga Horária"]');
+
+                enforceUppercase(institutionInput);
+                enforceUppercase(courseInput);
+                formatPeriod(periodInput);
 
                 container.appendChild(div);
 
