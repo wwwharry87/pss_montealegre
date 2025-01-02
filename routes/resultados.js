@@ -28,7 +28,7 @@ router.post("/gerar", async (req, res) => {
             include: [
                 { association: Inscricao.associations.formacoes },
                 { association: Inscricao.associations.cursosCapacitacao },
-                { model: Candidato, as: "candidato", attributes: ["data_nascimento"] },
+                { model: Candidato, as: "candidato", attributes: ["dataNascimento"] },
             ],
         });
 
@@ -50,7 +50,7 @@ router.post("/gerar", async (req, res) => {
             pontuacaoTotal += Math.min(cursosValidos.length, 10);
 
             // Calcular idade do candidato
-            const idade = calcularIdade(inscricao.candidato.data_nascimento);
+            const idade = calcularIdade(inscricao.candidato.dataNascimento);
 
             // Inserir ou atualizar na tabela resultados
             await Resultados.create({
