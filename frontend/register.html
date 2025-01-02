@@ -236,15 +236,28 @@
                 <label for="senhaLogin">Senha</label>
                 <input type="password" id="senhaLogin" name="senhaLogin" placeholder="Digite sua senha">
                 <button id="entrarBtn">✔ Entrar</button>
+                <p><a href="#" id="esqueciSenhaBtn">Esqueceu sua senha?</a></p>
                 <div id="mensagemLogin" class="message"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal para redefinição de senha -->
+    <div id="modalRecuperarSenha" class="modal">
+        <div class="modal-content">
+            <span class="close" id="fecharModalRecuperar">&times;</span>
+            <h2>Recuperar Senha</h2>
+            <label for="emailRecuperacao">Informe seu e-mail cadastrado</label>
+            <input type="email" id="emailRecuperacao" placeholder="Digite seu e-mail">
+            <button id="enviarRecuperacao">Enviar</button>
+            <div id="mensagemRecuperacao" class="message"></div>
+        </div>
+    </div>
+
+    <!-- Modal para acesso administrativo -->
     <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close" id="fecharModalAdmin">&times;</span>
             <h2>Acesso Administrativo</h2>
             <label for="adminUsername">Usuário</label>
             <input type="text" id="adminUsername" placeholder="Digite o usuário">
@@ -254,7 +267,6 @@
             <div id="mensagemAdmin" class="message"></div>
         </div>
     </div>
-
     <script>
         // Máscara para CPF
         document.querySelectorAll('#cpfCadastro, #cpfLogin').forEach(input => {
@@ -267,31 +279,31 @@
                     .replace(/(\d{3})(\d{2})$/, '$1-$2');
             });
         });
-
+    
         // Botão Cadastro
         document.getElementById('cadastrarBtn').addEventListener('click', async () => {
             const cpf = document.getElementById('cpfCadastro').value.replace(/\D/g, '');
             const mensagem = document.getElementById('mensagemCadastro');
-
+    
             if (cpf.length !== 11 || !validarCPF(cpf)) {
                 mensagem.textContent = 'CPF inválido! Por favor, corrija.';
                 mensagem.className = 'message error';
                 return;
             }
-
+    
             try {
                 const response = await fetch('https://pss-montealegre.onrender.com/api/candidatos/check-cpf', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cpf }),
                 });
-
+    
                 const data = await response.json();
-
+    
                 if (response.ok && !data.exists) {
                     mensagem.textContent = 'CPF válido. Abrindo formulário de cadastro...';
                     mensagem.className = 'message success';
-
+    
                     setTimeout(() => {
                         window.location.href = `/formulario.html?cpf=${cpf}`;
                     }, 2000);
@@ -304,32 +316,32 @@
                 mensagem.className = 'message error';
             }
         });
-
+    
         // Botão Login
         document.getElementById("entrarBtn").addEventListener("click", async () => {
             const cpf = document.getElementById("cpfLogin").value.replace(/\D/g, "");
             const senha = document.getElementById("senhaLogin").value;
             const mensagem = document.getElementById("mensagemLogin");
-
+    
             if (cpf.length !== 11 || !senha) {
                 mensagem.textContent = "Preencha todos os campos corretamente.";
                 mensagem.className = "message error";
                 return;
             }
-
+    
             try {
                 const response = await fetch("https://pss-montealegre.onrender.com/api/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ cpf, senha }),
                 });
-
+    
                 const data = await response.json();
-
+    
                 if (response.ok) {
                     mensagem.textContent = "Login realizado com sucesso!";
                     mensagem.className = "message success";
-
+    
                     // Redirect to visualiza.html with CPF as a query parameter
                     setTimeout(() => {
                         window.location.href = `/visualiza.html?cpf=${cpf}`;
@@ -344,50 +356,102 @@
                 console.error("Erro ao fazer login:", error);
             }
         });
-
-        // Acesso ao Sistema - Modal
-        const modal = document.getElementById("modal");
-        const btn = document.getElementById("acessoSistema");
-        const span = document.querySelector(".close");
-        const mensagemAdmin = document.getElementById("mensagemAdmin");
-
-        btn.onclick = function () {
-            modal.style.display = "block";
+    
+        // Modal para redefinição de senha
+        const modalRecuperar = document.getElementById("modalRecuperarSenha");
+        const btnRecuperar = document.getElementById("esqueciSenhaBtn");
+        const fecharRecuperar = document.getElementById("fecharModalRecuperar");
+    
+        btnRecuperar.onclick = function () {
+            modalRecuperar.style.display = "block";
         };
-
-        span.onclick = function () {
-            modal.style.display = "none";
+    
+        fecharRecuperar.onclick = function () {
+            modalRecuperar.style.display = "none";
         };
-
+    
         window.onclick = function (event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
+            if (event.target === modalRecuperar) {
+                modalRecuperar.style.display = "none";
             }
         };
-
+    
+        document.getElementById("enviarRecuperacao").addEventListener("click", async () => {
+            const email = document.getElementById("emailRecuperacao").value;
+            const mensagem = document.getElementById("mensagemRecuperacao");
+    
+            if (!email) {
+                mensagem.textContent = "Por favor, insira seu e-mail.";
+                mensagem.className = "message error";
+                return;
+            }
+    
+            try {
+                const response = await fetch("https://pss-montealegre.onrender.com/api/auth/recover", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email }),
+                });
+    
+                const data = await response.json();
+    
+                if (response.ok) {
+                    mensagem.textContent = "E-mail de recuperação enviado com sucesso!";
+                    mensagem.className = "message success";
+                } else {
+                    mensagem.textContent = data.message || "Erro ao enviar e-mail de recuperação.";
+                    mensagem.className = "message error";
+                }
+            } catch (error) {
+                mensagem.textContent = "Erro ao conectar ao servidor.";
+                mensagem.className = "message error";
+                console.error("Erro ao enviar e-mail de recuperação:", error);
+            }
+        });
+    
+        // Modal para acesso administrativo
+        const modalAdmin = document.getElementById("modal");
+        const btnAdmin = document.getElementById("acessoSistema");
+        const fecharAdmin = document.getElementById("fecharModalAdmin");
+    
+        btnAdmin.onclick = function () {
+            modalAdmin.style.display = "block";
+        };
+    
+        fecharAdmin.onclick = function () {
+            modalAdmin.style.display = "none";
+        };
+    
+        window.onclick = function (event) {
+            if (event.target === modalAdmin) {
+                modalAdmin.style.display = "none";
+            }
+        };
+    
         document.getElementById("adminLoginBtn").addEventListener("click", async () => {
             const username = document.getElementById("adminUsername").value;
             const password = document.getElementById("adminPassword").value;
-
+            const mensagemAdmin = document.getElementById("mensagemAdmin");
+    
             if (!username || !password) {
                 mensagemAdmin.textContent = "Preencha todos os campos.";
                 mensagemAdmin.className = "message error";
                 return;
             }
-
+    
             try {
                 const response = await fetch("https://pss-montealegre.onrender.com/api/auth/login-admin", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password }),
                 });
-
+    
                 const data = await response.json();
-
+    
                 if (response.ok) {
                     mensagemAdmin.textContent = "Login realizado com sucesso!";
                     mensagemAdmin.className = "message success";
-
+    
                     setTimeout(() => {
                         window.location.href = `/resultado.html`;
                     }, 1000);
@@ -398,9 +462,10 @@
             } catch (error) {
                 mensagemAdmin.textContent = "Erro ao conectar ao servidor.";
                 mensagemAdmin.className = "message error";
+                console.error("Erro ao fazer login administrativo:", error);
             }
         });
-
+    
         // Validação de CPF
         function validarCPF(cpf) {
             if (!cpf || cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -416,5 +481,6 @@
             return resto === parseInt(cpf[10]);
         }
     </script>
-</body>
-</html>
+    </body>
+    </html>
+    
