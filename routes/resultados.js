@@ -3,6 +3,19 @@ const router = express.Router();
 const { Inscricao, Formacao, CursoCapacitacao, Resultados, Candidato, Cargo } = require("../models");
 const { Sequelize } = require("sequelize");
 
+// Função para calcular idade a partir da data de nascimento
+function calcularIdade(dataNascimento) {
+    const hoje = new Date();
+    const nascimento = new Date(dataNascimento);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mes = hoje.getMonth() - nascimento.getMonth();
+
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+        idade--;
+    }
+    return idade;
+}
+
 // Rota para gerar resultados
 router.post("/gerar", async (req, res) => {
     try {
@@ -15,6 +28,7 @@ router.post("/gerar", async (req, res) => {
             include: [
                 { association: Inscricao.associations.formacoes },
                 { association: Inscricao.associations.cursosCapacitacao },
+                { model: Candidato, as: "candidato", attributes: ["data_nascimento"] },
             ],
         });
 
@@ -35,11 +49,15 @@ router.post("/gerar", async (req, res) => {
             const cursosValidos = inscricao.cursosCapacitacao.filter(c => c.carga_horaria >= 40);
             pontuacaoTotal += Math.min(cursosValidos.length, 10);
 
+            // Calcular idade do candidato
+            const idade = calcularIdade(inscricao.candidato.data_nascimento);
+
             // Inserir ou atualizar na tabela resultados
             await Resultados.create({
                 inscricao_id: inscricao.id,
                 candidato_id: inscricao.candidato_id,
                 pontuacao_total: pontuacaoTotal,
+                idade,
             });
         }
 
@@ -64,7 +82,10 @@ router.get('/listar', async (req, res) => {
                     ],
                 },
             ],
-            order: [[Sequelize.col('pontuacao_total'), 'DESC']],
+            order: [
+                [Sequelize.col('pontuacao_total'), 'DESC'],
+                [Sequelize.col('idade'), 'DESC'], // Desempate por idade (maior é melhor)
+            ],
         });
 
         res.status(200).json(resultados);
@@ -76,6 +97,5 @@ router.get('/listar', async (req, res) => {
         });
     }
 });
-
 
 module.exports = router;
