@@ -1,6 +1,3 @@
-const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
-
 class Resultados extends Model {}
 
 Resultados.init(
@@ -30,6 +27,11 @@ Resultados.init(
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
             defaultValue: 0,
+        },
+        idade: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0, // Valor padrão para entradas existentes
         },
     },
     {
