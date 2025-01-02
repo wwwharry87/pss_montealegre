@@ -5,6 +5,7 @@ const { Sequelize } = require("sequelize");
 
 // Função para calcular idade a partir da data de nascimento
 function calcularIdade(dataNascimento) {
+    if (!dataNascimento) return 0; // Retorna 0 se a data de nascimento estiver ausente
     const hoje = new Date();
     const nascimento = new Date(dataNascimento);
     let idade = hoje.getFullYear() - nascimento.getFullYear();
@@ -13,7 +14,7 @@ function calcularIdade(dataNascimento) {
     if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
         idade--;
     }
-    return idade;
+    return idade > 0 ? idade : 0; // Garante que a idade nunca seja negativa
 }
 
 // Rota para gerar resultados
