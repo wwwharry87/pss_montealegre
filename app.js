@@ -7,6 +7,12 @@ require("dotenv").config(); // Variáveis de ambiente
 
 const { setupAssociations } = require('./models');
 
+const Token = require('./models/Token');
+
+(async () => {
+    await Token.sync(); // Cria a tabela se ela não existir
+})();
+
 // Configurando associações antes de sincronizar os modelos
 setupAssociations();
 

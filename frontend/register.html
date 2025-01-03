@@ -358,56 +358,57 @@
         });
     
         // Modal para redefinição de senha
-        const modalRecuperar = document.getElementById("modalRecuperarSenha");
-        const btnRecuperar = document.getElementById("esqueciSenhaBtn");
-        const fecharRecuperar = document.getElementById("fecharModalRecuperar");
-    
-        btnRecuperar.onclick = function () {
-            modalRecuperar.style.display = "block";
-        };
-    
-        fecharRecuperar.onclick = function () {
-            modalRecuperar.style.display = "none";
-        };
-    
-        window.onclick = function (event) {
-            if (event.target === modalRecuperar) {
-                modalRecuperar.style.display = "none";
-            }
-        };
-    
-        document.getElementById("enviarRecuperacao").addEventListener("click", async () => {
-            const email = document.getElementById("emailRecuperacao").value;
-            const mensagem = document.getElementById("mensagemRecuperacao");
-    
-            if (!email) {
-                mensagem.textContent = "Por favor, insira seu e-mail.";
-                mensagem.className = "message error";
-                return;
-            }
-    
-            try {
-                const response = await fetch("https://pss-montealegre.onrender.com/api/auth/recover", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email }),
-                });
-    
-                const data = await response.json();
-    
-                if (response.ok) {
-                    mensagem.textContent = "E-mail de recuperação enviado com sucesso!";
-                    mensagem.className = "message success";
-                } else {
-                    mensagem.textContent = data.message || "Erro ao enviar e-mail de recuperação.";
-                    mensagem.className = "message error";
-                }
-            } catch (error) {
-                mensagem.textContent = "Erro ao conectar ao servidor.";
-                mensagem.className = "message error";
-                console.error("Erro ao enviar e-mail de recuperação:", error);
-            }
+const modalRecuperar = document.getElementById("modalRecuperarSenha");
+const btnRecuperar = document.getElementById("esqueciSenhaBtn");
+const fecharRecuperar = document.getElementById("fecharModalRecuperar");
+
+btnRecuperar.onclick = function () {
+    modalRecuperar.style.display = "block";
+};
+
+fecharRecuperar.onclick = function () {
+    modalRecuperar.style.display = "none";
+};
+
+window.onclick = function (event) {
+    if (event.target === modalRecuperar) {
+        modalRecuperar.style.display = "none";
+    }
+};
+
+document.getElementById("enviarRecuperacao").addEventListener("click", async () => {
+    const email = document.getElementById("emailRecuperacao").value;
+    const mensagem = document.getElementById("mensagemRecuperacao");
+
+    if (!email) {
+        mensagem.textContent = "Por favor, insira seu e-mail.";
+        mensagem.className = "message error";
+        return;
+    }
+
+    try {
+        const response = await fetch("https://pss-montealegre.onrender.com/api/auth/recover", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
         });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            mensagem.textContent = "E-mail de recuperação enviado com sucesso!";
+            mensagem.className = "message success";
+        } else {
+            mensagem.textContent = data.message || "Erro ao enviar e-mail de recuperação.";
+            mensagem.className = "message error";
+        }
+    } catch (error) {
+        mensagem.textContent = "Erro ao conectar ao servidor.";
+        mensagem.className = "message error";
+        console.error("Erro ao enviar e-mail de recuperação:", error);
+    }
+});
+
     
         // Modal para acesso administrativo
         const modalAdmin = document.getElementById("modal");
