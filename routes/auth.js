@@ -116,4 +116,40 @@ router.post("/auth/reset", async (req, res) => {
     }
 });
 
+// Rota para validar dados do candidato e redefinir senha
+router.post("/auth/validate-reset", async (req, res) => {
+    const { cpf, nomeCompleto, dataNascimento } = req.body;
+
+    try {
+        // Busca o candidato pelo CPF
+        const candidato = await Candidato.findOne({ where: { cpf } });
+        if (!candidato) {
+            return res.status(404).json({ message: "Candidato não encontrado." });
+        }
+
+        // Valida nome completo e data de nascimento
+        if (
+            candidato.nome.toLowerCase() !== nomeCompleto.toLowerCase() ||
+            candidato.dataNascimento !== dataNascimento
+        ) {
+            return res.status(400).json({ message: "Dados do candidato incorretos." });
+        }
+
+        // Gera a nova senha
+        const primeiroNome = candidato.nome.split(" ")[0];
+        const primeirosNumerosCPF = candidato.cpf.slice(0, 3);
+        const novaSenha = `${primeiroNome}${primeirosNumerosCPF}`;
+
+        // Atualiza a senha no banco (hash)
+        const hashSenha = await bcrypt.hash(novaSenha, 10);
+        await Candidato.update({ senha: hashSenha }, { where: { id: candidato.id } });
+
+        // Retorna a nova senha
+        res.status(200).json({ novaSenha });
+    } catch (error) {
+        console.error("Erro ao redefinir senha:", error);
+        res.status(500).json({ message: "Erro ao redefinir senha. Tente novamente mais tarde." });
+    }
+});
+
 module.exports = router;
