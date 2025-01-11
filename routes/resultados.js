@@ -34,14 +34,14 @@ router.post("/gerar", async (req, res) => {
         });
 
         for (const inscricao of inscricoes) {
-            let pontuacaoTotal = 0;
+            let pontuacaoTotal = 10;
 
             // Calcular pontuação das formações
             const especializacoes = inscricao.formacoes.filter(f => f.tipo === "Especializacao");
-            pontuacaoTotal += Math.min(especializacoes.length, 3) * 3.5;
+            pontuacaoTotal += Math.min(especializacoes.length, 3) * 2.0;
 
-            if (inscricao.formacoes.some(f => f.tipo === "Mestrado")) pontuacaoTotal += 4.5;
-            if (inscricao.formacoes.some(f => f.tipo === "Doutorado")) pontuacaoTotal += 5.0;
+            if (inscricao.formacoes.some(f => f.tipo === "Mestrado")) pontuacaoTotal += 7.0;
+            if (inscricao.formacoes.some(f => f.tipo === "Doutorado")) pontuacaoTotal += 9.0;
 
             // Calcular tempo de serviço
             pontuacaoTotal += Math.min(inscricao.tempo_servico || 0, 10);
