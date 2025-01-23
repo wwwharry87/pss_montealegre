@@ -28,6 +28,20 @@ router.post("/create", async (req, res) => {
 
         console.log("Candidato encontrado:", candidato);
 
+        // Verificar se já existe uma inscrição para o mesmo cargo
+        const inscricaoExistente = await Inscricao.findOne({
+            where: {
+                candidato_id: candidato.id,
+                cargo_id: cargo_id
+            }
+        });
+
+        if (inscricaoExistente) {
+            return res.status(400).json({
+                message: "Você já está inscrito neste cargo!"
+            });
+        }
+
         // Criar inscrição
         const novaInscricao = await Inscricao.create({
             candidato_id: candidato.id,
