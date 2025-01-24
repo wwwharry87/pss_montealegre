@@ -226,7 +226,7 @@
                     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
                 };
 
-<<<<<<< HEAD
+
                 document.querySelectorAll(".btn-delete").forEach((button) => {
                 button.addEventListener("click", async (event) => {
                     const inscricaoId = event.target.getAttribute("data-id");
@@ -251,8 +251,6 @@
                 });
             });
 
-=======
->>>>>>> ddcbaba726238307974ed49248e5a22b6770e935
                 // Exibe os dados do candidato
                 document.getElementById("candidato-nome").textContent = (data.candidato.nome || "N/A").toUpperCase();
                 document.getElementById("candidato-cpf").textContent = formatCPF(data.candidato.cpf);
