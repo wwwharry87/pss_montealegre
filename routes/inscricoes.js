@@ -131,6 +131,7 @@ router.get("/:cpf", async (req, res) => {
         res.status(500).json({ message: "Erro ao buscar as inscrições." });
     }
 });
+<<<<<<< HEAD
 // Rota para excluir somente a inscrição
 router.delete("/:id", async (req, res) => {
     const { id } = req.params;
@@ -154,3 +155,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
+=======
+
+module.exports = router;
+>>>>>>> ddcbaba726238307974ed49248e5a22b6770e935
