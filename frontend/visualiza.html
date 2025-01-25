@@ -307,12 +307,16 @@
                             console.error("Erro ao excluir inscrição:", error);
                             alert("Erro ao excluir a inscrição.");
                         }
-                    });
+                    });   
                 });
             } catch (error) {
                 console.error("Erro ao buscar os dados da inscrição:", error);
                 document.getElementById("mensagem").textContent = "Erro ao carregar os dados da inscrição.";
             }
+        });
+          // Adicionando evento ao botão de imprimir
+        document.getElementById("imprimir-btn").addEventListener("click", () => {
+            window.print();
         });
     </script>
 </body>
