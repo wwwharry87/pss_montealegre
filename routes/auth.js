@@ -8,7 +8,7 @@ const Token = require("../models/Token");
 
 const usuarioAdmin = {
     username: process.env.ADMIN_USERNAME || "admin",
-    password: process.env.ADMIN_PASSWORD || "admin8718",
+    password: process.env.ADMIN_PASSWORD || "admin1504802",
 };
 
 router.post("/login", async (req, res) => {
