@@ -53,10 +53,12 @@
             font-size: 16px;
             margin-bottom: 15px;
             float: right;
+            cursor: not-allowed; /* Cursor indicando que o botão está desabilitado */
+            opacity: 0.6; /* Deixa o botão com aparência desabilitada */
         }
 
         .btn-new-inscricao:hover {
-            background-color: #218838;
+            background-color: #28a745; /* Mantém a mesma cor ao passar o mouse */
         }
 
         .btn-new-inscricao span {
@@ -107,17 +109,6 @@
             color: #666;
         }
 
-        .card-header .delete-icon {
-            cursor: pointer;
-            color: #dc3545;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .card-header .delete-icon:hover {
-            color: #c82333;
-        }
-
         .card-body p {
             margin: 5px 0;
         }
@@ -146,7 +137,7 @@
 
         /* Estilo para impressão */
         @media print {
-            .btn-new-inscricao, .btn-print, .delete-icon {
+            .btn-new-inscricao, .btn-print {
                 display: none;
             }
 
@@ -176,6 +167,11 @@
             <h1>Comprovante Processo Seletivo da Secretaria Municipal de Educação de Monte Alegre-PA</h1>
         </div>
 
+        <!-- Botão de Nova Inscrição desabilitado -->
+        <a href="#" class="btn-new-inscricao" id="nova-inscricao-btn" disabled>
+            <strong>+</strong>
+            <span>Nova Inscrição</span>
+        </a>
 
         <p id="mensagem" style="color: red;"></p>
 
@@ -233,9 +229,6 @@
                 document.getElementById("candidato-cpf").textContent = formatCPF(data.candidato.cpf);
                 document.getElementById("candidato-pcd").textContent = (data.candidato.pcd).toUpperCase();
 
-                // Atualiza o link do botão "Nova Inscrição"
-                document.getElementById("nova-inscricao-btn").href = `/inscricao.html?cpf=${data.candidato.cpf}`;
-
                 // Exibe as inscrições
                 const inscricoesContainer = document.getElementById("inscricoes");
                 inscricoesContainer.innerHTML = "";
@@ -248,7 +241,6 @@
                         <div class="card-header">
                             <strong>${index + 1}ª Inscrição</strong>
                             <span class="date-time">${new Date(inscricao.createdAt).toLocaleString("pt-BR")}</span>
-                            <span class="delete-icon" data-id="${inscricao.id}">X</span>
                         </div>
                         <div class="card-body">
                             <p><strong>Cargo:</strong> ${inscricao.cargo?.nome || "N/A"}</p>
@@ -277,8 +269,13 @@
 
                     inscricoesContainer.appendChild(inscricaoCard);
                 });
+            } catch (error) {
+                console.error("Erro ao buscar os dados da inscrição:", error);
+                document.getElementById("mensagem").textContent = "Erro ao carregar os dados da inscrição.";
+            }
+        });
 
-          // Adicionando evento ao botão de imprimir
+        // Adicionando evento ao botão de imprimir
         document.getElementById("imprimir-btn").addEventListener("click", () => {
             window.print();
         });
