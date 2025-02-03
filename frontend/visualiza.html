@@ -278,38 +278,6 @@
                     inscricoesContainer.appendChild(inscricaoCard);
                 });
 
-                // Adicionar eventos para os ícones "Excluir"
-                document.querySelectorAll(".delete-icon").forEach((icon) => {
-                    icon.addEventListener("click", async (event) => {
-                        const inscricaoId = event.target.getAttribute("data-id");
-
-                        const confirmacao = confirm("Tem certeza que deseja excluir esta inscrição?");
-                        if (!confirmacao) return;
-
-                        try {
-                            const response = await fetch(`https://pss-montealegre.onrender.com/api/inscricoes/${inscricaoId}`, {
-                                method: "DELETE",
-                            });
-
-                            if (!response.ok) {
-                                const errorData = await response.json();
-                                alert(`Erro ao excluir: ${errorData.message}`);
-                                return;
-                            }
-
-                            alert("Inscrição excluída com sucesso!");
-                            location.reload(); // Recarrega a página para atualizar a lista de inscrições
-                        } catch (error) {
-                            console.error("Erro ao excluir inscrição:", error);
-                            alert("Erro ao excluir a inscrição.");
-                        }
-                    });   
-                });
-            } catch (error) {
-                console.error("Erro ao buscar os dados da inscrição:", error);
-                document.getElementById("mensagem").textContent = "Erro ao carregar os dados da inscrição.";
-            }
-        });
           // Adicionando evento ao botão de imprimir
         document.getElementById("imprimir-btn").addEventListener("click", () => {
             window.print();
