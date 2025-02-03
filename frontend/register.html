@@ -223,7 +223,8 @@
             <div class="form-box">
                 <h2>Realize seu cadastro</h2>
                 <label for="cpfCadastro">CPF</label>
-                <input type="text" id="cpfCadastro" name="cpfCadastro" placeholder="000.000.000-00" maxlength="14">
+                <input type="text" id="cpfCadastro" name="cpfCadastro" placeholder="000.000.000-00" maxlength="14" disabled>
+                <p style="color: #666; font-size: 14px; text-align: center;">Novos cadastros estão temporariamente desabilitados. Utilize a opção "Acompanhe seu cadastro" para acessar sua inscrição.</p>
                 <div id="mensagemCadastro" class="message"></div>
             </div>
 
@@ -286,70 +287,32 @@
                     .replace(/(\d{3})(\d{2})$/, '$1-$2');
             });
         });
-    
-        // Botão Cadastro
-        document.getElementById('cadastrarBtn').addEventListener('click', async () => {
-            const cpf = document.getElementById('cpfCadastro').value.replace(/\D/g, '');
-            const mensagem = document.getElementById('mensagemCadastro');
-    
-            if (cpf.length !== 11 || !validarCPF(cpf)) {
-                mensagem.textContent = 'CPF inválido! Por favor, corrija.';
-                mensagem.className = 'message error';
-                return;
-            }
-    
-            try {
-                const response = await fetch(''
-                                            , {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cpf }),
-                });
-    
-                const data = await response.json();
-    
-                if (response.ok && !data.exists) {
-                    mensagem.textContent = 'CPF válido. Abrindo formulário de cadastro...';
-                    mensagem.className = 'message success';
-    
-                    setTimeout(() => {
-                        window.location.href = `/formulario.html?cpf=${cpf}`;
-                    }, 2000);
-                } else {
-                    mensagem.textContent = data.message || 'CPF já cadastrado.';
-                    mensagem.className = 'message error';
-                }
-            } catch (error) {
-                mensagem.textContent = 'Erro ao conectar ao servidor. Tente novamente mais tarde.';
-                mensagem.className = 'message error';
-            }
-        });
-    
+
         // Botão Login
         document.getElementById("entrarBtn").addEventListener("click", async () => {
             const cpf = document.getElementById("cpfLogin").value.replace(/\D/g, "");
             const senha = document.getElementById("senhaLogin").value;
             const mensagem = document.getElementById("mensagemLogin");
-    
+
             if (cpf.length !== 11 || !senha) {
                 mensagem.textContent = "Preencha todos os campos corretamente.";
                 mensagem.className = "message error";
                 return;
             }
-    
+
             try {
                 const response = await fetch("https://pss-montealegre.onrender.com/api/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ cpf, senha }),
                 });
-    
+
                 const data = await response.json();
-    
+
                 if (response.ok) {
                     mensagem.textContent = "Login realizado com sucesso!";
                     mensagem.className = "message success";
-    
+
                     // Redirect to visualiza.html with CPF as a query parameter
                     setTimeout(() => {
                         window.location.href = `/visualiza.html?cpf=${cpf}`;
@@ -364,115 +327,114 @@
                 console.error("Erro ao fazer login:", error);
             }
         });
-    
+
         // Modal para redefinição de senha
-const modalRecuperar = document.getElementById("modalRecuperarSenha");
-const btnRecuperar = document.getElementById("esqueciSenhaBtn");
-const fecharRecuperar = document.getElementById("fecharModalRecuperar");
+        const modalRecuperar = document.getElementById("modalRecuperarSenha");
+        const btnRecuperar = document.getElementById("esqueciSenhaBtn");
+        const fecharRecuperar = document.getElementById("fecharModalRecuperar");
 
-btnRecuperar.onclick = function () {
-    modalRecuperar.style.display = "block";
-};
+        btnRecuperar.onclick = function () {
+            modalRecuperar.style.display = "block";
+        };
 
-fecharRecuperar.onclick = function () {
-    modalRecuperar.style.display = "none";
-};
+        fecharRecuperar.onclick = function () {
+            modalRecuperar.style.display = "none";
+        };
 
-window.onclick = function (event) {
-    if (event.target === modalRecuperar) {
-        modalRecuperar.style.display = "none";
-    }
-};
+        window.onclick = function (event) {
+            if (event.target === modalRecuperar) {
+                modalRecuperar.style.display = "none";
+            }
+        };
 
-document.getElementById("redefinirSenhaBtn").addEventListener("click", async () => {
-    const cpf = document.getElementById("cpf").value.replace(/\D/g, ""); // Remove pontos e traços
-    const nomeCompleto = document.getElementById("nomeCompleto").value;
-    const dataNascimento = document.getElementById("dataNascimento").value;
-    const mensagem = document.getElementById("mensagemRecuperacao");
-    const novaSenhaDisplay = document.getElementById("novaSenhaDisplay");
-    const novaSenha = document.getElementById("novaSenha");
+        document.getElementById("redefinirSenhaBtn").addEventListener("click", async () => {
+            const cpf = document.getElementById("cpf").value.replace(/\D/g, ""); // Remove pontos e traços
+            const nomeCompleto = document.getElementById("nomeCompleto").value;
+            const dataNascimento = document.getElementById("dataNascimento").value;
+            const mensagem = document.getElementById("mensagemRecuperacao");
+            const novaSenhaDisplay = document.getElementById("novaSenhaDisplay");
+            const novaSenha = document.getElementById("novaSenha");
 
-    mensagem.textContent = "";
-    novaSenhaDisplay.style.display = "none";
+            mensagem.textContent = "";
+            novaSenhaDisplay.style.display = "none";
 
-    if (!cpf || !nomeCompleto || !dataNascimento) {
-        mensagem.textContent = "Por favor, preencha todos os campos.";
-        mensagem.className = "message error";
-        return;
-    }
+            if (!cpf || !nomeCompleto || !dataNascimento) {
+                mensagem.textContent = "Por favor, preencha todos os campos.";
+                mensagem.className = "message error";
+                return;
+            }
 
-    try {
-    const response = await fetch("https://pss-montealegre.onrender.com/api/auth/validate-reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf, nomeCompleto, dataNascimento }),
-    });
+            try {
+                const response = await fetch("https://pss-montealegre.onrender.com/api/auth/validate-reset", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ cpf, nomeCompleto, dataNascimento }),
+                });
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        mensagem.textContent = `Erro: ${response.statusText || "Falha na requisição"}`;
-        mensagem.className = "message error";
-        console.error("Erro detalhado:", errorText);
-        return;
-    }
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    mensagem.textContent = `Erro: ${response.statusText || "Falha na requisição"}`;
+                    mensagem.className = "message error";
+                    console.error("Erro detalhado:", errorText);
+                    return;
+                }
 
-    const data = await response.json();
+                const data = await response.json();
 
-    mensagem.textContent = "Senha redefinida com sucesso!";
-    mensagem.className = "message success";
-    novaSenha.textContent = data.novaSenha;
-    novaSenhaDisplay.style.display = "block";
-} catch (error) {
-    mensagem.textContent = "Erro ao conectar ao servidor.";
-    mensagem.className = "message error";
-    console.error("Erro ao redefinir senha:", error);
-}
-});
+                mensagem.textContent = "Senha redefinida com sucesso!";
+                mensagem.className = "message success";
+                novaSenha.textContent = data.novaSenha;
+                novaSenhaDisplay.style.display = "block";
+            } catch (error) {
+                mensagem.textContent = "Erro ao conectar ao servidor.";
+                mensagem.className = "message error";
+                console.error("Erro ao redefinir senha:", error);
+            }
+        });
 
-    
         // Modal para acesso administrativo
         const modalAdmin = document.getElementById("modal");
         const btnAdmin = document.getElementById("acessoSistema");
         const fecharAdmin = document.getElementById("fecharModalAdmin");
-    
+
         btnAdmin.onclick = function () {
             modalAdmin.style.display = "block";
         };
-    
+
         fecharAdmin.onclick = function () {
             modalAdmin.style.display = "none";
         };
-    
+
         window.onclick = function (event) {
             if (event.target === modalAdmin) {
                 modalAdmin.style.display = "none";
             }
         };
-    
+
         document.getElementById("adminLoginBtn").addEventListener("click", async () => {
             const username = document.getElementById("adminUsername").value;
             const password = document.getElementById("adminPassword").value;
             const mensagemAdmin = document.getElementById("mensagemAdmin");
-    
+
             if (!username || !password) {
                 mensagemAdmin.textContent = "Preencha todos os campos.";
                 mensagemAdmin.className = "message error";
                 return;
             }
-    
+
             try {
                 const response = await fetch("https://pss-montealegre.onrender.com/api/auth/login-admin", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password }),
                 });
-    
+
                 const data = await response.json();
-    
+
                 if (response.ok) {
                     mensagemAdmin.textContent = "Login realizado com sucesso!";
                     mensagemAdmin.className = "message success";
-    
+
                     setTimeout(() => {
                         window.location.href = `/resultado.html`;
                     }, 1000);
@@ -486,7 +448,7 @@ document.getElementById("redefinirSenhaBtn").addEventListener("click", async () 
                 console.error("Erro ao fazer login administrativo:", error);
             }
         });
-    
+
         // Validação de CPF
         function validarCPF(cpf) {
             if (!cpf || cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -502,6 +464,5 @@ document.getElementById("redefinirSenhaBtn").addEventListener("click", async () 
             return resto === parseInt(cpf[10]);
         }
     </script>
-    </body>
-    </html>
-    
+</body>
+</html>
