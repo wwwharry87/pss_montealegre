@@ -224,7 +224,6 @@
                 <h2>Realize seu cadastro</h2>
                 <label for="cpfCadastro">CPF</label>
                 <input type="text" id="cpfCadastro" name="cpfCadastro" placeholder="000.000.000-00" maxlength="14">
-                <button id="cadastrarBtn">✔ Cadastre-se</button>
                 <div id="mensagemCadastro" class="message"></div>
             </div>
 
@@ -300,7 +299,8 @@
             }
     
             try {
-                const response = await fetch('https://pss-montealegre.onrender.com/api/candidatos/check-cpf', {
+                const response = await fetch(''
+                                            , {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cpf }),
